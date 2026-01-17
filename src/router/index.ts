@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import WidgetView from '../views/WidgetView.vue'
 import OverlayView from '../views/OverlayView.vue'
 import WavesView from '../views/WavesView.vue'
+import BoxView from '../views/BoxView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,11 @@ const router = createRouter({
       path: '/waves',
       name: 'waves',
       component: WavesView
+    },
+    {
+      path: '/box',
+      name: 'box',
+      component: BoxView
     }
   ]
 })
