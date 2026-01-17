@@ -8,7 +8,7 @@
 <style>
 @font-face {
   font-family: 'Iosevka';
-  src: url('./fonts/Iosevka/SGr-Iosevka-Bold.ttc') format('truetype');
+  src: url('./fonts/Iosevka/Iosevka-Bold-subset.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
 }
