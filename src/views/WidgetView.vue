@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LeaderboardWidget from '../components/LeaderboardWidget.vue'
+  import LeaderboardWidget from "../components/LeaderboardWidget.vue";
 </script>
 
 <template>
@@ -9,12 +9,11 @@ import LeaderboardWidget from '../components/LeaderboardWidget.vue'
 </template>
 
 <style scoped>
-.widget-view {
-  min-height: 100vh;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  padding: 20px;
-  background: transparent;
-}
+  .widget-view {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    background: transparent;
+  }
 </style>
