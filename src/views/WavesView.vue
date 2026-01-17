@@ -9,33 +9,41 @@ const wave3 = ref({ p1: 0, p2: 0, p3: 0 })
 // Wave 1 - Short wavelength, many oscillations (6 segments)
 const wave1Path = computed(() => {
   const w = wave1.value
-  return `M0,105
-    C${100 + w.p1},${92 + w.p2} ${220 + w.p2},${118 + w.p1} 320,${100 + w.p3}
-    C${420 + w.p3},${82 + w.p4} ${540 + w.p4},${115 + w.p2} 640,${98 + w.p1}
-    C${740 + w.p2},${80 + w.p5} ${860 + w.p5},${112 + w.p3} 960,${102 + w.p4}
-    C${1060 + w.p4},${88 + w.p6} ${1180 + w.p6},${118 + w.p1} 1280,${95 + w.p2}
-    C${1380 + w.p1},${78 + w.p3} ${1500 + w.p3},${110 + w.p5} 1600,${100 + w.p6}
-    C${1700 + w.p5},${85 + w.p2} ${1820 + w.p2},${115 + w.p4} 1920,${98 + w.p1}
-    L1920,150 L0,150 Z`
+  const baseY = 120
+  const amp = 18
+  return `M0,${baseY + w.p1}
+    Q160,${baseY - amp + w.p2} 320,${baseY + w.p3}
+    Q480,${baseY + amp + w.p4} 640,${baseY + w.p1}
+    Q800,${baseY - amp + w.p5} 960,${baseY + w.p4}
+    Q1120,${baseY + amp + w.p6} 1280,${baseY + w.p2}
+    Q1440,${baseY - amp + w.p3} 1600,${baseY + w.p6}
+    Q1760,${baseY + amp + w.p2} 1920,${baseY + w.p1}
+    L1920,180 L0,180 Z`
 })
 
 // Wave 2 - Medium wavelength (4 segments)
 const wave2Path = computed(() => {
   const w = wave2.value
-  return `M0,78
-    C${240 + w.p1},${52 + w.p2} ${480 + w.p2},${95 + w.p1} 720,${70 + w.p3}
-    C${960 + w.p3},${45 + w.p4} ${1200 + w.p4},${88 + w.p2} 1440,${65 + w.p1}
-    C${1680 + w.p2},${42 + w.p3} ${1800 + w.p1},${82 + w.p4} 1920,${72 + w.p2}
-    L1920,150 L0,150 Z`
+  const baseY = 84
+  const amp = 24
+  return `M0,${baseY + w.p1}
+    Q240,${baseY - amp + w.p2} 480,${baseY + w.p3}
+    Q720,${baseY + amp + w.p4} 960,${baseY + w.p1}
+    Q1200,${baseY - amp + w.p2} 1440,${baseY + w.p4}
+    Q1680,${baseY + amp + w.p3} 1920,${baseY + w.p2}
+    L1920,180 L0,180 Z`
 })
 
 // Wave 3 - Long wavelength (3 segments, wide curves)
 const wave3Path = computed(() => {
   const w = wave3.value
-  return `M0,58
-    C${320 + w.p1},${30 + w.p2} ${640 + w.p2},${75 + w.p1} 960,${50 + w.p3}
-    C${1280 + w.p3},${25 + w.p1} ${1600 + w.p1},${68 + w.p2} 1920,${55 + w.p3}
-    L1920,150 L0,150 Z`
+  const baseY = 60
+  const amp = 30
+  return `M0,${baseY + w.p1}
+    Q320,${baseY - amp + w.p2} 640,${baseY + w.p3}
+    Q960,${baseY + amp + w.p1} 1280,${baseY + w.p2}
+    Q1600,${baseY - amp + w.p3} 1920,${baseY + w.p1}
+    L1920,180 L0,180 Z`
 })
 
 onMounted(() => {
@@ -85,7 +93,7 @@ onMounted(() => {
     <div class="waves-container">
       <svg
         class="waves"
-        viewBox="0 0 1920 150"
+        viewBox="0 0 1920 180"
         preserveAspectRatio="none"
       >
         <!-- Wave 3 - Darkest, back layer, long wavelength -->
@@ -121,7 +129,7 @@ onMounted(() => {
 
 .content {
   width: 100%;
-  height: calc(100% - 150px);
+  height: calc(100% - 180px);
   position: relative;
 }
 
@@ -130,7 +138,7 @@ onMounted(() => {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 150px;
+  height: 180px;
 }
 
 .waves {
