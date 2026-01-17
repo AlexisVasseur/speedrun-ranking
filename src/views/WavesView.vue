@@ -90,6 +90,8 @@ onMounted(() => {
       <!-- Content area -->
     </div>
 
+    <div class="horizontal-line"></div>
+
     <div class="waves-container">
       <svg
         class="waves"
@@ -131,6 +133,15 @@ onMounted(() => {
   width: 100%;
   height: calc(100% - 180px);
   position: relative;
+}
+
+.horizontal-line {
+  position: absolute;
+  bottom: 180px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #0DF2B1;
 }
 
 .waves-container {

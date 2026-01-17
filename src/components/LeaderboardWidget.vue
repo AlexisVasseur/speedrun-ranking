@@ -154,7 +154,7 @@
     font-weight: 600;
     margin-bottom: 8px;
     text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid #0DF2B1;
     padding-bottom: 8px;
   }
 
@@ -189,7 +189,7 @@
     top: 0;
     bottom: 0;
     width: 1px;
-    background: rgba(255, 255, 255, 0.3);
+    background: #0DF2B1;
     transform: translateX(-50%);
   }
 
@@ -239,6 +239,8 @@
 
   .separator {
     opacity: 0.5;
+    font-size: 19px;
+    font-weight: 700;
   }
 
   .time {
