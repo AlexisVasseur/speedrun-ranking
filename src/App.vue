@@ -7,9 +7,9 @@
 
 <style>
 @font-face {
-  font-family: 'Nasalization';
-  src: url('./fonts/nasalization/Nasalization Rg.otf') format('opentype');
-  font-weight: normal;
+  font-family: 'Iosevka';
+  src: url('./fonts/Iosevka/SGr-Iosevka-Bold.ttc') format('truetype');
+  font-weight: 700;
   font-style: normal;
 }
 

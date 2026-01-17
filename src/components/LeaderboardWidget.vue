@@ -137,13 +137,13 @@ function getPlaceColor(place: number): string {
   border-radius: 8px;
   padding: 8px 12px;
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .widget-title {
   color: #FFFFFF;
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   margin-bottom: 6px;
   text-align: center;
@@ -154,7 +154,7 @@ function getPlaceColor(place: number): string {
 .loading,
 .error {
   color: #FFFFFF;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .error {
@@ -162,8 +162,8 @@ function getPlaceColor(place: number): string {
 }
 
 .content-area {
-  min-width: 450px;
-  min-height: 66px;
+  min-width: 495px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -189,7 +189,7 @@ function getPlaceColor(place: number): string {
 .column {
   display: flex;
   flex-direction: column;
-  min-width: 215px;
+  min-width: 236px;
 }
 
 .left-column {
@@ -197,7 +197,7 @@ function getPlaceColor(place: number): string {
 
 .right-column-container {
   position: relative;
-  min-height: 66px; /* 3 rows * 22px */
+  min-height: 72px; /* 3 rows * 24px */
 }
 
 .right-column-content {
@@ -216,15 +216,15 @@ function getPlaceColor(place: number): string {
 }
 
 .place {
-  width: 32px;
-  min-width: 32px;
-  font-family: 'Nasalization', monospace;
-  font-weight: normal;
+  width: 35px;
+  min-width: 35px;
+  font-family: 'Iosevka', monospace;
+  font-weight: 700;
   text-align: right;
 }
 
 .player-name {
-  width: 95px;
+  width: 105px;
   overflow: hidden;
   text-overflow: ellipsis;
   font-family: 'IBM Plex Sans', sans-serif;
@@ -235,10 +235,10 @@ function getPlaceColor(place: number): string {
 }
 
 .time {
-  width: 50px;
-  min-width: 50px;
-  font-family: 'Nasalization', monospace;
-  font-weight: normal;
+  width: 55px;
+  min-width: 55px;
+  font-family: 'Iosevka', monospace;
+  font-weight: 700;
   text-align: right;
 }
 
