@@ -1,7 +1,32 @@
 <script setup lang="ts">
-  import { onMounted, ref, computed, onUnmounted } from "vue";
+  import { onMounted, ref, computed, onUnmounted, watch } from "vue";
   import { useLeaderboardStore } from "../stores/leaderboard";
   import { storeToRefs } from "pinia";
+
+  const props = withDefaults(
+    defineProps<{
+      gameId?: string;
+      categoryId?: string;
+      top?: number;
+      gameName?: string;
+      categoryName?: string;
+      variables?: Record<string, string>;
+      transitionSpeed?: number;
+    }>(),
+    {
+      gameId: "silksong",
+      categoryId: "zd39j4nd",
+      top: 20,
+      gameName: "Hollow Knight: Silksong",
+      categoryName: "Any% NMG",
+      variables: () => ({}),
+      transitionSpeed: 10,
+    }
+  );
+
+  const widgetTitle = computed(
+    () => `${props.gameName} - ${props.categoryName}`
+  );
 
   const store = useLeaderboardStore();
   const { formattedRuns, loading, error } = storeToRefs(store);
@@ -13,11 +38,12 @@
   // Top 3 always visible
   const top3 = computed(() => formattedRuns.value.slice(0, 3));
 
-  // Groups for rotation: 4-6, 7-9, 10-12, 13-15, 16-18, 19-20
+  // Groups for rotation: 4-6, 7-9, 10-12, etc. based on props.top
   const rotatingGroups = computed(() => {
     const groups = [];
-    for (let i = 3; i < 20; i += 3) {
-      const group = formattedRuns.value.slice(i, Math.min(i + 3, 20));
+    const maxEntries = props.top;
+    for (let i = 3; i < maxEntries; i += 3) {
+      const group = formattedRuns.value.slice(i, Math.min(i + 3, maxEntries));
       if (group.length > 0) {
         groups.push(group);
       }
@@ -47,15 +73,30 @@
         // Fade in
         showRightColumn.value = true;
       }, 400);
-    }, 10000);
+    }, props.transitionSpeed * 1000);
   }
 
-  onMounted(async () => {
-    await store.fetchData();
+  async function loadData() {
+    showContent.value = false;
+    currentGroupIndex.value = 0;
+    await store.fetchData(props.gameId, props.categoryId, props.top, props.variables);
     setTimeout(() => {
       showContent.value = true;
       startRotation();
     }, 100);
+  }
+
+  // Watch for prop changes and refetch
+  watch(
+    () => [props.gameId, props.categoryId, props.top, props.variables],
+    () => {
+      loadData();
+    },
+    { deep: true }
+  );
+
+  onMounted(async () => {
+    await loadData();
   });
 
   onUnmounted(() => {
@@ -67,11 +108,11 @@
   function getPlaceColor(place: number): string {
     switch (place) {
       case 1:
-        return "#FFD700"; // Gold
+        return "#FFE566"; // Gold
       case 2:
-        return "#C0C0C0"; // Silver
+        return "#E8E8E8"; // Silver
       case 3:
-        return "#CD7F32"; // Bronze
+        return "#DAA520"; // Bronze
       default:
         return "#FFFFFF"; // White
     }
@@ -80,7 +121,7 @@
 
 <template>
   <div class="widget-container">
-    <h2 class="widget-title">Top 20 - Any% NMG</h2>
+    <h2 class="widget-title">{{ widgetTitle }}</h2>
 
     <div class="content-area">
       <div v-if="loading && formattedRuns.length === 0" class="loading">
@@ -138,7 +179,7 @@
 
 <style scoped>
   .widget-container {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.75);
     border-radius: 10px;
     padding: 10px 16px 10px 5px;
     font-family: "IBM Plex Sans", sans-serif;
@@ -156,6 +197,7 @@
     text-align: center;
     border-bottom: 1px solid #0DF2B1;
     padding-bottom: 8px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   }
 
   .loading,
@@ -220,6 +262,7 @@
     padding: 5px 0;
     gap: 10px;
     white-space: nowrap;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   }
 
   .place {
@@ -235,6 +278,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 600;
   }
 
   .separator {

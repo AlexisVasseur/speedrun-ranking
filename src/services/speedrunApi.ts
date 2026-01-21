@@ -10,10 +10,61 @@ const api = axios.create({
   }
 })
 
+// Simple cache with TTL
+interface CacheEntry<T> {
+  data: T
+  timestamp: number
+}
+
+const cache = new Map<string, CacheEntry<unknown>>()
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+function getCached<T>(key: string): T | null {
+  const entry = cache.get(key) as CacheEntry<T> | undefined
+  if (!entry) return null
+  if (Date.now() - entry.timestamp > CACHE_TTL) {
+    cache.delete(key)
+    return null
+  }
+  return entry.data
+}
+
+function setCache<T>(key: string, data: T): void {
+  cache.set(key, { data, timestamp: Date.now() })
+}
+
 export interface LeaderboardRun {
   place: number
   playerName: string
   timeSeconds: number
+}
+
+export interface Game {
+  id: string
+  names: {
+    international: string
+  }
+  abbreviation: string
+}
+
+export interface Category {
+  id: string
+  name: string
+  type: 'per-game' | 'per-level'
+}
+
+export interface VariableValue {
+  id: string
+  label: string
+}
+
+export interface Variable {
+  id: string
+  name: string
+  isSubcategory: boolean
+  mandatory: boolean
+  values: VariableValue[]
+  defaultValue: string | null
 }
 
 interface ApiPlayer {
@@ -53,22 +104,25 @@ interface ApiLeaderboardResponse {
   }
 }
 
-// Variable IDs for Any% NMG subcategory
-const VAR_SUBCATEGORY_ID = 'ylq4yvzn'
-const VAR_NMG_VALUE_ID = 'qzne828q'
-
 export async function fetchLeaderboard(
   gameId: string = 'silksong',
   categoryId: string = 'zd39j4nd',
-  top: number = 5
+  top: number = 5,
+  variables: Record<string, string> = {}
 ): Promise<LeaderboardRun[]> {
+  // Build variable params (var-{id}={value})
+  const varParams: Record<string, string> = {}
+  for (const [varId, valueId] of Object.entries(variables)) {
+    varParams[`var-${varId}`] = valueId
+  }
+
   const response = await api.get<ApiLeaderboardResponse>(
     `/leaderboards/${gameId}/category/${categoryId}`,
     {
       params: {
         top,
         embed: 'players',
-        [`var-${VAR_SUBCATEGORY_ID}`]: VAR_NMG_VALUE_ID
+        ...varParams
       }
     }
   )
@@ -107,8 +161,170 @@ export async function fetchLeaderboard(
 }
 
 export function formatTime(seconds: number): string {
-  const totalMinutes = Math.floor(seconds / 60)
+  const hours = Math.floor(seconds / 3600)
+  const mins = Math.floor((seconds % 3600) / 60)
   const secs = Math.floor(seconds % 60)
 
-  return `${totalMinutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  if (hours > 0) {
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+}
+
+interface ApiGamesResponse {
+  data: Array<{
+    id: string
+    names: {
+      international: string
+    }
+    abbreviation: string
+  }>
+}
+
+interface ApiCategoriesResponse {
+  data: Array<{
+    id: string
+    name: string
+    type: 'per-game' | 'per-level'
+  }>
+}
+
+export async function searchGames(query: string): Promise<Game[]> {
+  if (query.length < 3) return []
+
+  const cacheKey = `games:search:${query.toLowerCase()}`
+  const cached = getCached<Game[]>(cacheKey)
+  if (cached) return cached
+
+  const response = await api.get<ApiGamesResponse>('/games', {
+    params: {
+      name: query,
+      max: 10
+    }
+  })
+
+  const games = response.data.data.map((game) => ({
+    id: game.id,
+    names: game.names,
+    abbreviation: game.abbreviation
+  }))
+
+  setCache(cacheKey, games)
+  return games
+}
+
+export async function getGameCategories(gameId: string): Promise<Category[]> {
+  const cacheKey = `categories:${gameId}`
+  const cached = getCached<Category[]>(cacheKey)
+  if (cached) return cached
+
+  const response = await api.get<ApiCategoriesResponse>(`/games/${gameId}/categories`)
+
+  const categories = response.data.data
+    .filter((cat) => cat.type === 'per-game')
+    .map((cat) => ({
+      id: cat.id,
+      name: cat.name,
+      type: cat.type
+    }))
+
+  setCache(cacheKey, categories)
+  return categories
+}
+
+interface ApiVariableValue {
+  label: string
+}
+
+interface ApiVariable {
+  id: string
+  name: string
+  'is-subcategory': boolean
+  mandatory: boolean
+  values: {
+    values: Record<string, ApiVariableValue>
+  }
+  default?: string
+}
+
+interface ApiVariablesResponse {
+  data: ApiVariable[]
+}
+
+export async function getCategoryVariables(categoryId: string): Promise<Variable[]> {
+  const cacheKey = `variables:${categoryId}`
+  const cached = getCached<Variable[]>(cacheKey)
+  if (cached) return cached
+
+  const response = await api.get<ApiVariablesResponse>(`/categories/${categoryId}/variables`)
+
+  const variables = response.data.data
+    .filter((v) => v['is-subcategory'])
+    .map((v) => ({
+      id: v.id,
+      name: v.name,
+      isSubcategory: v['is-subcategory'],
+      mandatory: v.mandatory,
+      values: Object.entries(v.values.values).map(([id, val]) => ({
+        id,
+        label: val.label
+      })),
+      defaultValue: v.default || null
+    }))
+
+  setCache(cacheKey, variables)
+  return variables
+}
+
+interface ApiGameResponse {
+  data: {
+    id: string
+    names: {
+      international: string
+    }
+    abbreviation: string
+  }
+}
+
+interface ApiCategoryResponse {
+  data: {
+    id: string
+    name: string
+    type: 'per-game' | 'per-level'
+  }
+}
+
+export async function getGameById(gameId: string): Promise<Game> {
+  const cacheKey = `game:${gameId}`
+  const cached = getCached<Game>(cacheKey)
+  if (cached) return cached
+
+  const response = await api.get<ApiGameResponse>(`/games/${gameId}`)
+  const game = response.data.data
+  const result = {
+    id: game.id,
+    names: game.names,
+    abbreviation: game.abbreviation
+  }
+
+  setCache(cacheKey, result)
+  return result
+}
+
+export async function getCategoryById(categoryId: string): Promise<Category> {
+  const cacheKey = `category:${categoryId}`
+  const cached = getCached<Category>(cacheKey)
+  if (cached) return cached
+
+  const response = await api.get<ApiCategoryResponse>(`/categories/${categoryId}`)
+  const cat = response.data.data
+  const result = {
+    id: cat.id,
+    name: cat.name,
+    type: cat.type
+  }
+
+  setCache(cacheKey, result)
+  return result
 }
